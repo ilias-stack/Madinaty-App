@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "110992010707",
+    "project_id": "madinaty-30f6e",
+    "storage_bucket": "madinaty-30f6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110992010707:android:dbae76b60825e7ed9f5326",
+        "android_client_info": {
+          "package_name": "com.example.madinaty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110992010707-c4hc413b0vnhdn880d2hbg8g9q0ft3nl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh93RV_d155jUQlbqVlPW12ivsK-l7jGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "110992010707-c4hc413b0vnhdn880d2hbg8g9q0ft3nl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
