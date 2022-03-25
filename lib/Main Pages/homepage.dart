@@ -1,6 +1,11 @@
+// ignore_for_file: must_be_immutable
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:madinaty/Main%20Pages/reclamation.dart';
 import 'package:madinaty/Main%20Pages/services.dart';
@@ -477,7 +482,14 @@ class HomePage extends StatelessWidget {
                   icon: const Icon(Icons.message),
                   onPressed: () {
                     if (MyUsers.islogged() && !MyUsers.isanonyme()) {
-                      print('redirected');
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              Messagerie(user: MyUsers.infos()['email'])));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Vous n'êtes pas connecté à un compte"),
+                        duration: Duration(milliseconds: 900),
+                      ));
                     }
                   }),
               MyUsers.islogged() && !MyUsers.isanonyme()
@@ -685,6 +697,129 @@ class _DrawerContentState extends State<DrawerContent> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class Messagerie extends StatefulWidget {
+  late String user;
+  Messagerie({required this.user, Key? key}) : super(key: key);
+
+  @override
+  State<Messagerie> createState() => _MessagerieState();
+}
+
+class _MessagerieState extends State<Messagerie> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(
+              Icons.close,
+              color: Colors.black,
+            )),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: const Image(
+            image: AssetImage('assets/Logo-modified.png'),
+            width: 40,
+            height: 40),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('messagerie')
+              .where('receiver', isEqualTo: widget.user)
+              .snapshots(),
+          builder: ((context, snapshot) {
+            List<MsgContent> a;
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                !snapshot.hasData ||
+                snapshot.hasError) {
+              return const Center(
+                child: SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: CircularProgressIndicator(
+                        color: Color.fromRGBO(70, 160, 150, 1))),
+              );
+            } else {
+              a = snapshot.data!.docs.map((doc) {
+                return MsgContent(
+                  doc: doc,
+                );
+              }).toList();
+              return ListView(
+                  children: a.isEmpty
+                      ? const [
+                          SizedBox(
+                            height: 140,
+                          ),
+                          Image(
+                              height: 120,
+                              image: AssetImage('Icons/empty.png')),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Center(
+                            child: Text(
+                              'Votre messagerie est vide',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 22),
+                            ),
+                          )
+                        ]
+                      : a);
+            }
+          })),
+    );
+  }
+}
+
+class MsgContent extends StatelessWidget {
+  late QueryDocumentSnapshot<Object?> doc;
+  MsgContent({required this.doc, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Slidable(
+          startActionPane: ActionPane(motion: const ScrollMotion(), children: [
+            SlidableAction(
+              onPressed: (bld) => doc.reference.delete(),
+              icon: Icons.delete,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              label: 'Supprimer',
+            )
+          ]),
+          child: ExpandablePanel(
+            header: Container(
+              margin: const EdgeInsets.all(5),
+              padding: const EdgeInsets.only(
+                top: 10,
+              ),
+              child: Text(
+                doc['title'],
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ),
+            expanded: Container(
+              margin: const EdgeInsets.only(left: 5),
+              padding: const EdgeInsets.only(top: 7),
+              child: Text(doc['message'],
+                  style: const TextStyle(fontSize: 20, color: Colors.black54)),
+            ),
+            collapsed: const SizedBox.shrink(),
+          ),
+        ),
+        const Divider()
+      ],
     );
   }
 }
